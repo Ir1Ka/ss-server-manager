@@ -119,3 +119,50 @@ function container_port() {
     fi
     docker inspect --format '{{(index (index .HostConfig.PortBindings "8388/tcp") 0).HostPort}}' $1
 }
+
+# Through command to encode ss_url
+function encode_ss_url() {
+    local server_port
+    local password
+    local method
+    local server_ip
+    local ss_config
+    while [ "$#" -gt "0" ]; do
+        case "$1" in
+            -P) # server_port
+                shift
+                server_port=$1
+                is_port_number $server_port
+                ;;
+            -p) # password
+                shift
+                password=$1
+                ;;
+            -m) # method
+                shift
+                method=$1
+                method_support $method
+                ;;
+            *)
+                ;;
+        esac
+        shift
+    done
+    if [ -z "$server_port" ] || [ -z "$password" ] || [ -z "$method" ]; then
+        echo "Arguments are incomplete"
+        exit 1
+    fi
+    # get public network ip addr
+    server_ip=`curl ip.sb 2>/dev/null`
+    ss_config=$method:$password@$server_ip:$server_port
+    echo ss://`echo -n $ss_config | base64 | sed 's/+/-/g' | sed 's/\//_/g'`
+}
+
+# Generate ss url
+function get_ss_url() {
+    if [ -z "$1" ]; then
+        echo "$FUNCNAME function needs user name or user port."
+        return 1
+    fi
+    encode_ss_url `cat $users | grep " ${1##*ss_} "`
+}
