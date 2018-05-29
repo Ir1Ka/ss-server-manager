@@ -28,7 +28,7 @@ function help() {
     echo -e "\t-p option is used to set a password."
     echo -e "\t\tNote: -p is lower case."
     echo -e "\t-m option is used to set encryption algorithm."
-    echo -e "\t\tOptional, default is aes-128-cfb."
+    echo -e "\t\tOptional, default is $method."
     echo -e "\t-t option is used to set timeout."
     echo -e "\t\tOptional, default is 300."
     echo -e "\t-h option will show this message."
@@ -117,3 +117,8 @@ fi
 # supervisor update
 echo "supervisor will update and this ss config will start."
 supervisorctl -c $main_supervisor_config_file update
+
+server_ip=`curl ip.sb 2>/dev/null`
+ss_config=$method:$password@$server_ip:$server_port
+echo "You can use this url to import to your shasowsocks client."
+echo ss://`echo -n $ss_config | base64 | sed 's/+/-/g' | sed 's/\//_/g'`
