@@ -1,6 +1,6 @@
 # Client usage tutorial
 
-This tutorial is for a tutorial on the client side
+This tutorial is for the client side
 of the server configured with this project.
 
 ## Client device
