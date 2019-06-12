@@ -95,15 +95,16 @@ supervisor_config=$supervisor_config"command=docker run --rm "
 # docker port map
 supervisor_config=$supervisor_config"-p $server:$server_port:8388/tcp -p $server:$server_port:8388/udp "
 # docker container name
-supervisor_config=$supervisor_config"--name $name shadowsocks/shadowsocks-libev "
+supervisor_config=$supervisor_config"--name $name irika/shadowsocks "
 # ss-server command running in container
-supervisor_config=$supervisor_config"ss-server -s 0.0.0.0 -p 8388 -k $password -m $method -t $timeout -u\n"
+supervisor_config=$supervisor_config"ss-server -s 0.0.0.0 -p 8388 -k $password -m $method -t $timeout -u "
+supervisor_config=$supervisor_config"--fast-open --plugin v2ray-plugin --plugin-opts \"server;fast-open\"\n"
 supervisor_config=$supervisor_config"user=root\n"
 supervisor_config=$supervisor_config"autostart=true\nautoresart=true\nstartsecs=5\n"
 supervisor_config=$supervisor_config"stopasgroup=true\nkillasgroup=true\n"
 supervisor_config=$supervisor_config"stdout_logfile_maxbytes=5MB\n"
-supervisor_config=$supervisor_config"stderr_logfile=/var/log/supervisor/ss_$server_port.stderr.log\n"
-supervisor_config=$supervisor_config"stdout_logfile=/var/log/supervisor/ss_$server_port.stdout.log"
+supervisor_config=$supervisor_config"stderr_logfile=/var/log/supervisor/${name}.stderr.log\n"
+supervisor_config=$supervisor_config"stdout_logfile=/var/log/supervisor/${name}.stdout.log"
 supervisor_config_file=$supervisor_configs_dir/$name.ini
 rm -f $supervisor_config_file*
 echo -e $supervisor_config > $supervisor_config_file
@@ -121,4 +122,5 @@ supervisorctl -c $main_supervisor_config_file update
 server_ip=`curl ip.sb 2>/dev/null`
 ss_config=$method:$password@$server_ip:$server_port
 echo "You can use this url to import to your shasowsocks client."
+echo "NOTE: the account need v2ray-plugin, you need manual configure v2ray-plugin as default config."
 echo ss://`echo -n $ss_config | base64 | sed 's/+/-/g' | sed 's/\//_/g'`
